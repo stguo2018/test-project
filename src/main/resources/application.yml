@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: test-project
+  jackson:
+    default-property-inclusion: non_empty
+
+server:
+  compression:
+    mime-types: text/xml,text/plain,application/json,application/vnd.ews-content-provider.v1+json,vnd.ews-content-provider.v1+text/plain
+    enabled: true
+  tomcat:
+    basedir: ${application.home}
+    max-threads: 150
+    accept-count: 150
+    access-log-enabled: true
+    access-log-pattern: "%t lbip=%h identd=%l user=%u status=%s method=%m url=%U bytes=%b duration=%D"
+  port: 8443
+  ssl:
+    enabled: true
+    key-alias: "expedia-${EXPEDIA_DEPLOYED_ENVIRONMENT:test}-${AWS_REGION:us-west-2}"
+    key-store: "classpath:keystore/ssl.jks"
+    key-store-password: "changeme"
+  connection-timeout: 5s

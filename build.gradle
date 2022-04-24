@@ -1,0 +1,102 @@
+buildscript {
+    ext {
+        springBootVersion = '2.1.1.RELEASE'
+        downloadUser = getProperty('artifactory_user')
+        downloadPassword = getProperty('artifactory_password')
+        mavenRepo = getProperty('mavenRepo')
+    }
+    if (!downloadUser?.trim() || !downloadPassword?.trim() || !mavenRepo?.trim()) {
+        throw new InvalidUserDataException("Credentials not found. Please follow the instructions" +
+                "at https://confluence.expedia.biz/display/ENCP/How+To%3A+Migrate+to+Artifactory")
+    }
+    repositories {
+        mavenLocal()
+        maven {
+            credentials {
+                username = downloadUser
+                password = downloadPassword
+            }
+            url mavenRepo
+        }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.ews.stguo'
+version = '1.0.0'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation('org.springframework.boot:spring-boot-starter-web')
+//    implementation('org.springframework.boot:spring-boot-starter-web-services')
+    implementation('org.springframework.boot:spring-boot-starter-aop')
+    implementation('org.apache.commons:commons-lang3:3.8.1')
+//    compile group: 'org.apache.commons', name: 'commons-collections4', version: '4.4'
+    implementation('org.apache.commons:commons-collections4:4.4')
+    implementation('com.opencsv:opencsv:4.6') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    implementation('org.apache.ant:ant:1.10.5')
+    implementation('redis.clients:jedis:2.9.0')
+    implementation('com.google.guava:guava:27.0.1-jre')
+    implementation('org.apache.poi:poi:4.1.2')
+    implementation('org.apache.poi:poi-ooxml:4.1.2')
+    implementation('org.freemarker:freemarker:2.3.23')
+    implementation('org.apache.httpcomponents:httpclient:4.5.2') {
+        exclude group: 'commons-logging', module: 'commons-logging'
+    }
+    implementation('org.springframework.boot:spring-boot-starter-webflux')
+    implementation('net.sourceforge.htmlunit:htmlunit:2.27')
+    implementation('cn.hutool:hutool-all:5.7.5')
+    implementation('expedia.ews:thirdparty-lcs:3.4.0') {
+        exclude group: 'expedia'
+        exclude group:'io.swagger', module:'swagger-codegen-cli'
+    }
+    implementation('mysql:mysql-connector-java:8.0.17')
+    implementation('com.zaxxer:HikariCP:3.2.0')
+    implementation('expedia.ews:lpdp-common-interface:2.1.11')
+    implementation('com.expedia.lodging:mls-lpas-client:1.0.86')
+
+    compileOnly('org.projectlombok:lombok')
+
+    testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        credentials {
+            username = downloadUser
+            password = downloadPassword
+        }
+        url mavenRepo
+    }
+}
+
+bootRun {
+    // '-server -XX:+UseConcMarkSweepGC -XX:+UseParNewGC
+    // -Xms4096M -Xmx4096M -Xmn1536M -Dio.netty.noPreferDirect=true
+    // -Djdk.xml.entityExpansionLimit=0
+    // -Djdk.xml.elementAttributeLimit=0 -Djdk.xml.maxOccur=0
+    // -Djdk.xml.totalEntitySizeLimit=0 -XX:+PrintGCDetails
+    // -XX:+PrintGCTimeStamps -XX:+HeapDumpOnOutOfMemoryError
+    // -XX:HeapDumpPath=/opt/ews-push-service/logs/heapdumps/'
+    jvmArgs=['-Dfile.encoding=UTF-8',
+             '-Xdebug',
+             '-XX:+UseConcMarkSweepGC',
+             '-XX:+UseParNewGC',
+             '-Xms1024M',
+             '-Xmx1024M',
+             '-Xmn620M']
+}
