@@ -9,6 +9,10 @@ public class GuestReview {
     private Integer reviewerScore;
     private String reviewBrand;
     private String reviewText;
+    private String creationDate;
+    private String checkinDate;
+    private String chackoutDate;
+    private String languageCode;
 
     public String getReviewerName() {
         return reviewerName;
@@ -40,5 +44,37 @@ public class GuestReview {
 
     public void setReviewText(String reviewText) {
         this.reviewText = reviewText;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public String getCheckinDate() {
+        return checkinDate;
+    }
+
+    public void setCheckinDate(String checkinDate) {
+        this.checkinDate = checkinDate;
+    }
+
+    public String getChackoutDate() {
+        return chackoutDate;
+    }
+
+    public void setChackoutDate(String chackoutDate) {
+        this.chackoutDate = chackoutDate;
+    }
+
+    public String getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
     }
 }
