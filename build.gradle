@@ -70,6 +70,9 @@ dependencies {
 
     compileOnly('org.projectlombok:lombok')
 
+    implementation('com.amazonaws:aws-java-sdk-sqs:1.11.647')
+    implementation('com.amazonaws:aws-java-sdk:1.11.647')
+
     testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
