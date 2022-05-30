@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,12 +17,13 @@ public class SimpleController {
 
     @GetMapping(path = "/simple/tryGetDelay")
     public ResponseEntity<String> tryGetDelay(@RequestParam("delay") long delay) {
+        System.out.println("Received time: " + LocalDateTime.now());
         try {
             TimeUnit.MILLISECONDS.sleep(delay);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error");
         }
-        return ResponseEntity.ok("OK");
+        return ResponseEntity.status(500).body("OK");
     }
 
 }

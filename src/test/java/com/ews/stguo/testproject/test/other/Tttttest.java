@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -35,6 +36,35 @@ public class Tttttest {
         System.out.println(a);
         // \u000a a="hello world!";
         System.out.println(a);
+    }
+
+    @Test
+    public void test03() throws Exception {
+        Random random = new Random();
+        List<List<Integer>> weekDays = IntStream.range(0, 7).boxed().map(day ->
+                IntStream.range(0, 24).boxed().map(hour -> random.nextInt(100)).collect(Collectors.toList())
+        ).collect(Collectors.toList());
+        // simulation
+        for (int j = 0; j < weekDays.size(); j++) {
+            System.out.println("---------------------------Day" + (j + 1) + "--------------------------------");
+            List<Integer> day = weekDays.get(j);
+            StringBuilder sb1 = new StringBuilder("[0(" + day.get(0) + ")");
+            StringBuilder sb2 = new StringBuilder("[0-0(" + day.get(0) + ")");
+            for (int i = 1; i < day.size(); i++) {
+                int previousHour = day.get(i - 1);
+                int currentHour = day.get(i);
+                day.set(i, currentHour + previousHour);
+                sb1.append(",").append(i).append("(").append(currentHour).append(")");
+                sb2.append(",0-").append(i).append("(").append(day.get(i)).append(")");
+            }
+            sb1.append("]");
+            sb2.append("]");
+            System.out.println("Before:" + sb1);
+            System.out.println("After:" + sb2);
+        }
+        weekDays.forEach(day -> {
+
+        });
     }
 
 }

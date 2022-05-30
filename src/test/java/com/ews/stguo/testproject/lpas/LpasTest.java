@@ -1,8 +1,8 @@
 package com.ews.stguo.testproject.lpas;
 
+import com.ews.stguo.testproject.utils.TeslaSerializeUtil;
 import com.ews.stguo.testproject.utils.client.ClientCreator;
 import com.ews.stguo.testproject.utils.file.RWFileUtils;
-import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.BusinessModel;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.DisplayPrices;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.ExperimentMapEntry;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.LodgingPricingAvailabilityRequest;
@@ -14,8 +14,6 @@ import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.RatePlan
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.Room;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.ShoppingPathType;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.SiteType;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Test;
 import org.springframework.web.reactive.function.client.WebClient;
 

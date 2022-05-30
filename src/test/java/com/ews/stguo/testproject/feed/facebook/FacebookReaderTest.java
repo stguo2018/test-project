@@ -1,16 +1,22 @@
 package com.ews.stguo.testproject.feed.facebook;
 
+import com.ews.stguo.testproject.utils.controlfile.ControlFileRWUtils;
 import com.ews.stguo.testproject.utils.file.RWFileUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONObject;
 import org.junit.Test;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author <a href="mailto:v-stguo@expedia.com">steven</a>
@@ -26,57 +32,13 @@ public class FacebookReaderTest {
         List<String> missingLatitudeFiledProperties = new ArrayList<>();
         List<String> missingLongitudeFiledProperties = new ArrayList<>();
         Map<String, Integer> countryCount = new HashMap<>();
-        try (BufferedReader br = RWFileUtils.getReader(fileName);
+        try (FacebookFileReader br = FacebookFileReader.readFile(fileName);
              BufferedWriter bw = RWFileUtils.getWriter("FB extract record.csv")) {
             bw.write(String.format("%s,%s,%s,%s", "HcomId", "Country", "Latitude", "Longitude"));
             bw.newLine();
-            String line;
+            String[] columns;
             StringBuilder contentLine = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                contentLine.append(line.replace("\\", "").replace("\t\"\",\"\"postal_code\"\"", "\"\",\"\"postal_code\"\""));
-                String[] columns = contentLine.toString().trim().split("\t");
-                if (count++ < 10) {
-//                    System.out.println(contentLine);
-                }
-                if (columns.length < 16) {
-                    continue;
-                }
-                if (columns.length > 16) {
-                    try {
-                        while (!columns[1].startsWith("\"{\"\"iphone_url\"\":") && columns.length > 16) {
-                            String[] newColumns = new String[columns.length-1];
-                            int newIndex = 0;
-                            for (int i = 0; i < columns.length; i++) {
-                                newColumns[newIndex] = columns[i];
-                                if (i == 0) {
-                                    newColumns[newIndex] += columns[i + 1];
-                                    i++;
-                                }
-                                newIndex++;
-                            }
-                            columns = newColumns;
-                        }
-                        while (((columns[11].equals("") && StringUtils.isNumeric(columns[12])) || !StringUtils.isNumeric(columns[11]))
-                                && columns.length > 16) {
-                            String[] newColumns = new String[columns.length-1];
-                            int newIndex = 0;
-                            for (int i = 0; i < columns.length; i++) {
-                                newColumns[newIndex] = columns[i];
-                                if (i == (11 - 1)) {
-                                    newColumns[newIndex] += columns[i + 1];
-                                    i++;
-                                }
-                                newIndex++;
-                            }
-                            columns = newColumns;
-                        }
-                    } catch (Exception e) {
-                        System.out.println("-----------------ERROR:" + contentLine);
-                    }
-                }
-                if (columns.length != 16) {
-                    System.out.println(contentLine);
-                }
+            while ((columns = br.readLineAsColumns()).length != 0) {
                 if (head) {
                     for (int i = 0; i < columns.length; i++) {
                         if (head) {
@@ -132,6 +94,51 @@ public class FacebookReaderTest {
         }
         System.out.println(String.join(",", missingCountryFiledProperties));
         System.out.println(countryCount);
+    }
+
+    @Test
+    public void testValidHcomFBFileFromControlFIle() throws Exception {
+        Map<String, String> hcomToEcomIdMapping = ControlFileRWUtils.loadHotelIdStrByPaths("ews-hotel-static-ecomid-hcomid-mapping.csv")
+                .stream().filter(s -> !StringUtils.equalsIgnoreCase(s, "ecomHotelId,hcomHotelId"))
+                .map(s -> s.split(","))
+                .collect(Collectors.toMap(cs -> cs[1], cs -> cs[0]));
+        Set<String> ids = ControlFileRWUtils.loadHotelIdStrByPaths("hcom-feed-control-file.csv")
+                .stream().map(line -> line.split(",")[0]).collect(Collectors.toSet());
+        System.out.println("CountFileSize: " + ids.size());
+        List<String> hotelIdsInFile = new ArrayList<>();
+        List<String> additionalHotelIds = new ArrayList<>();
+        try (FacebookFileReader facebookFileReader = FacebookFileReader.readFile("hotels-local-1.tsv")) {
+            FacebookFileReader.DataLine dataLine = facebookFileReader.readDataLine(); // Skip first line.
+            while ((dataLine = facebookFileReader.readDataLine()) != null) {
+                String hotelId = hcomToEcomIdMapping.get(dataLine.getHotelId());
+                if (hotelId != null) {
+                    hotelIdsInFile.add(hotelId);
+                    if (!ids.contains(hotelId)) {
+                        additionalHotelIds.add(hotelId);
+                    }
+                } else {
+                    System.out.println("No mapping: " + dataLine.getHotelId());
+                }
+            }
+        }
+        System.out.println("HotelSizeInFile: " + hotelIdsInFile.size());
+        System.out.println("Additional HotelIds Size: " + additionalHotelIds.size());
+        try (BufferedWriter bw = RWFileUtils.getWriter("AdditionalHotelIds.csv")) {
+            for (String id : additionalHotelIds) {
+                bw.write(id);
+                bw.newLine();
+            }
+        }
+        List<String> missedHotelIds = ListUtils.removeAll(ids, new HashSet<>(hotelIdsInFile));
+        System.out.println("Missed HotelIds Size: " + missedHotelIds.size());
+        try (BufferedWriter bw = RWFileUtils.getWriter("MissedHotelIds.csv")) {
+            for (String id : missedHotelIds) {
+                bw.write(id);
+                bw.newLine();
+            }
+        }
+        System.out.println(new BigDecimal(String.valueOf(hotelIdsInFile.size())).
+                divide(new BigDecimal(String.valueOf(ids.size())), 6, RoundingMode.HALF_UP).toString());
     }
 
 }

@@ -29,7 +29,7 @@ public class PDQClient {
 
     private static final String URL = "http://property-directory-query-production.us-east-1-vpc-d9087bbe." +
             "slb-internal.prod.aws.away.black/supply/property-directory/v2/properties";
-    private static final String TOKEN = "Bearer ZmQyZjVjZTMtMjI4Yi00YzFmLWEzMDAtNzEwMmFjNzBiNTU4";
+    private static final String TOKEN = "Bearer NTZlNjg1OTItMDA2ZC00ZDg0LWExMTctOTIxMmU0ZjdhM2M3";
 
     public static Map<String, String> getVrboIdMappingFromPDQ(List<String> hotelIds, CloseableHttpClient httpClient) {
         HttpPost httpPost = new HttpPost(URL);
@@ -88,7 +88,7 @@ public class PDQClient {
                     return null;
                 }
                 if (propertyUnits.get().length() > 1) {
-                    System.out.println(hotelId);
+//                    System.out.println(hotelId);
                 }
                 JSONObject propertyUnit = propertyUnits.get().optJSONObject(0);
                 Optional<JSONObject> property = Optional.ofNullable(propertyUnit).map(pu -> pu.optJSONObject("property"));

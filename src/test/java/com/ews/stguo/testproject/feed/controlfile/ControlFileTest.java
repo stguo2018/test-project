@@ -4,24 +4,25 @@ import com.ews.stguo.testproject.utils.client.ClientCreator;
 import com.ews.stguo.testproject.utils.client.ContentProviderClient;
 import com.ews.stguo.testproject.utils.controlfile.ControlFileRWUtils;
 import com.ews.stguo.testproject.utils.file.RWFileUtils;
-import com.expedia.www.ews.models.propertyinfo.PropertyInfoResponse;
 import com.expedia.www.ews.models.propertyinfo.v2.response.ContentType;
 import com.expedia.www.ews.models.propertyinfo.v2.response.InventorySourceType;
 import com.expedia.www.ews.models.propertyinfo.v2.response.PropertyInfoResponseType;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.RateLimiter;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -119,6 +120,35 @@ public class ControlFileTest {
         synchronized (bw) {
             bw.flush();
         }
+    }
+
+    @Test
+    public void compareHcomControlFileWithNewAndOld() throws Exception {
+        List<String> oldIds = ControlFileRWUtils.loadHotelIdStrByPaths("hcom-feed-control-file (1).csv")
+                .stream().map(s -> s.split(",")[0]).collect(Collectors.toList());
+        System.out.println("Old: " + oldIds.size());
+        List<String> newIds = ControlFileRWUtils.loadHotelIdStrByPaths("hcom-feed-control-file.csv")
+                .stream().map(s -> s.split(",")[0]).collect(Collectors.toList());
+        System.out.println("New: " + newIds.size());
+        List<String> addedIds = ListUtils.removeAll(newIds, new HashSet<>(oldIds));
+        List<String> removedIds = ListUtils.removeAll(oldIds, new HashSet<>(newIds));
+        System.out.println("Added: " + addedIds.size());
+        System.out.println("Removed: " + removedIds.size());
+        try (BufferedWriter bw = RWFileUtils.getWriter("AddedIds.csv")) {
+            for (String addedId : addedIds) {
+                bw.write(addedId);
+                bw.newLine();
+            }
+            bw.flush();
+        }
+        try (BufferedWriter bw = RWFileUtils.getWriter("RemovedIds.csv")) {
+            for (String removedId : removedIds) {
+                bw.write(removedId);
+                bw.newLine();
+            }
+            bw.flush();
+        }
+        System.out.println("Done");
     }
 
 }

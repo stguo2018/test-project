@@ -67,6 +67,8 @@ dependencies {
     implementation('com.zaxxer:HikariCP:3.2.0')
     implementation('expedia.ews:lpdp-common-interface:2.1.11')
     implementation('com.expedia.lodging:mls-lpas-client:1.0.86')
+    implementation('com.qubole.qds-sdk-java:qds-sdk-java:1.2.1')
+    implementation('org.springframework.boot:spring-boot-starter-jersey')
 
     compileOnly('org.projectlombok:lombok')
 
