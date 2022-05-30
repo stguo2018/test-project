@@ -29,7 +29,7 @@ public class RedisDistributedLockController {
 
     @Scheduled(cron = "0/5 * * * * ?")
     public void test() throws Exception {
-        System.out.println(LocalDateTime.now().toString());
+//        System.out.println(LocalDateTime.now().toString());
         Thread.sleep(30000);
     }
 

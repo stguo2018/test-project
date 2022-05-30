@@ -1,4 +1,4 @@
-package com.ews.stguo.testproject.lpas;
+package com.ews.stguo.testproject.utils;
 
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.LodgingPricingAvailabilityRequest;
 import com.expedia.lodging.lodgingpricingavailabilityservice.lpasobject.LodgingPricingAvailabilityResponse;
